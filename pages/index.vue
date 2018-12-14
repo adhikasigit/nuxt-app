@@ -1,33 +1,41 @@
 <template>
-  <section class="container">
-    <div>
-      <logo/>
-      <h1 class="title">
-        nuxtest
-      </h1>
-      <h2 class="subtitle">
-        My best Nuxt.js project
-      </h2>
-      <div class="links">
-        <a
-          href="https://nuxtjs.org/"
-          target="_blank"
-          class="button--green">Documentation</a>
-        <a
-          href="https://github.com/nuxt/nuxt.js"
-          target="_blank"
-          class="button--grey">GitHub</a>
-      </div>
+  <div class="container mx-auto">
+    <div class="game-container">
+      <nuxt-link :to="'/games/'+ game.id" v-for="game in games" :key="game.id" class="block mb-8">
+        <img :src="game.cover.url.replace('t_thumb','t_cover_big')" alt="cover">
+        <div>{{game.name}}</div>
+        <div>{{game.genres[0].name}}</div>
+      </nuxt-link>
     </div>
-  </section>
+  </div>
 </template>
 
 <script>
 import Logo from '~/components/Logo.vue'
+import axios from 'axios'
+
+axios.defaults.headers.common['user-key'] = 'b4706abd57c29445037c6d97957de99c'
 
 export default {
   components: {
     Logo
+  },
+  asyncData ({ params, error }) {
+    return axios.get(`https://api-endpoint.igdb.com//games/?fields=name,genres.name,cover,popularity&order=popularity:desc&expand=genres`)
+    .then((res) => {
+      return { 
+        games: res.data
+      }
+    })
+    .catch((e) => {
+      //error({ statusCode: 404, message: 'Post not found' })
+      console.log(e);
+    })
+  },
+  data() {
+    return {
+      games: []
+    }
   }
 }
 </script>
